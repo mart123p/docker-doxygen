@@ -1,0 +1,55 @@
+#!/bin/sh
+printstd()
+{
+	echo "[gen-doxygen] $1" > /dev/stdout
+	echo "[gen-doxygen] $1" > /dev/pts/0
+}
+clean()
+{
+	if [ -f /var/run/hook/hook.lock ]; then
+		printstd "Lock on hook released"
+		rm /var/run/hook/hook.lock
+	fi
+	exit
+}
+printstd "gen-doxygen starting $(date)"
+
+#We clone the repo and we generate the doxygen documentation.
+REPO=$(cat /var/data/config/git_repo)
+cd /var/data/repo/
+#Is the repo https?
+if $(ls -A /var/data/repo/); then
+	if $(echo $REPO | grep -q "https://"); then
+		#Https repo
+		printstd "Git repo is an https repo"
+		git clone $REPO /var/data/repo > /dev/pts/0 
+	else
+		ssh-agent sh -c "ssh-add /var/data/config/id_rsa; git clone $REPO /var/data/repo/" > /dev/pts/0
+	fi
+	if [ ! $(ls -A /var/data/repo/) ]; then
+		printstd "ERROR: Repo is empty abording."
+		clean
+	fi
+else
+	printstd "Pulling repo $REPO"
+	git pull origin master > /dev/pts/0
+fi
+#We check if the directory contains a Doxyfile, if not we will generate our own.
+DOX_CONF=/usr/share/doc/doxygen/Doxyfile
+if [ -f /var/data/repo/Doxyfile ];then 
+	printstd "Using a custom Doxyfile"
+	DOX_CONF=/var/data/repo/Doxyfile
+fi
+
+SRC_DIR=$(cat /var/data/config/src_dir)
+cd /var/data/repo/$SRC_DIR
+doxygen $DOX_CONF > /dev/pts/0
+
+OUT_DIR=$(cat /var/data/config/out_dir)
+#We update the documentation directory
+mkdir -p /var/data/html/generated/
+rm -rf /var/data/html/generated/*
+cp -R /var/data/repo/$SRC_DIR/$OUT_DIR/* /var/data/html/generated/
+
+#We check if the lock file is still present
+clean

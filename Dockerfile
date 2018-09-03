@@ -1,5 +1,6 @@
 FROM alpine:3.8
-RUN     apk upgrade -q -U -a \
+LABEL maintainer="Martin Pouliot <martinp507@gmail.com>"
+RUN apk upgrade -q -U -a \
 	&& apk --update add \
 	nginx \
 	fcgiwrap \

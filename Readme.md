@@ -14,7 +14,7 @@ Parameter | Description | Example
 GIT_REPO | The url of the git repository you wish to fetch from. It can also be ssh. | `-e GIT_REPO=https://github.com/mart123p/docker-doxygen.git`
 API_KEY | The key that needs to be supplied to the hook to authenticate the Get request. If not set it will be generated automatically. | `-e API_KEY=MySecureKeyThatNoOneWillGuess`
 OUT_DIR | The output directory of the Doxygen generated documentation. | `-e OUT_DIR=doxygen-output`
-SRC_DIR | The root directory where doxygen needs to be run. | `-e SRC_SIR=src/project`
+SRC_DIR | The root directory where doxygen needs to be run. It will look for a Doxyfile. If it's not present it will use it's default Doxyfile which is available [here](https://github.com/mart123p/docker-doxygen/blob/master/doxygen/Doxyfile).| `-e SRC_SIR=src/project`
 USERNAME | Enables basic auth on the doxygen documentation. This parameter needs to be used with PASSWORD. | `-e USERNAME=admin`
 PASSWORD | Enables basic auth on the doxygen documentation. This parameter needs to be used with USERNAME. | `-e PASSWORD=admin`
 
